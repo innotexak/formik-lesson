@@ -2,12 +2,9 @@ import React from "react";
 import * as yup from 'yup'
 import axios from "axios";
 import { useFormik } from "formik";
-import { TextField, Button, Typography } from "@material-ui/core";
-const url ="http://localhost:5000"
-const dumyData = {
-    email:"akuhinnocent2016@gmail.com",
-    password:"innotex"
-}
+import { TextField, Button, Typography, CircularProgress } from "@material-ui/core";
+const url ="http://localhost:5000/login"
+
 const loginValidation = yup.object({
     email:yup.string('Enter your email').email("Invalid email").required("Email is required"),
     password:yup.string('Enter your password').min(5,"Must be more than 5 chars").max(8, 'Should not be more than 8 chars').required("Password is required")
@@ -15,11 +12,10 @@ const loginValidation = yup.object({
 
   
 
-export default function Login(){
+export default function Login({im}){
     const [isLoading, setIsLoading] = React.useState(false)
 
     const formik = useFormik({
-
         initialValues:{
             email:"",
             password:""
@@ -28,26 +24,16 @@ export default function Login(){
         validationSchema:loginValidation,
 
         onSubmit:async (values, action)=>{
-        //     if(values.password === dumyData.password && values.email === dumyData.email){
-        //    alert("You are login succesfully")
-        //     }else{
-        //         alert("Invalid credentials")
-        //     }
-
-
-
-
           try {
               setIsLoading(true)
-            const response = await axios.post(url, {values})
+            const response = await axios.post(url, values)
+            console.log(response);
             if(response.status === 200){
-                setIsLoading(false)
-                
+              
             }
               
           } catch (error) {
-            setIsLoading(false)
-              console.log(error.response?.message || error.message)
+        
           }
 
 
@@ -55,7 +41,7 @@ export default function Login(){
         },
 
     })
-    return(
+    return( <>
         <form onSubmit={formik.handleSubmit} style={{width:"500px", height:"auto", margin:"auto"}}>
 
             <Typography variant="h2">
@@ -66,6 +52,7 @@ export default function Login(){
           <TextField
                 name="email"
                 id="email"
+                type="email"
                 value={formik.values.email}
                 onChange={formik.handleChange}
                 onBlur={formik.onBlur}
@@ -78,8 +65,8 @@ export default function Login(){
             
         <div>
         <TextField
-              
                 name="password"
+                type="password"
                 value={formik.values.password}
                 onChange={formik.handleChange}
                 onBlur={formik.onBlur}
@@ -89,8 +76,21 @@ export default function Login(){
                 helperText={formik.touched.password && formik.errors.password}
             />
         </div>
-            <Button type="submit" variant="filled">{isLoading ?"Loading ...": "Submit"} </Button>
+            <Button type="submit" variant="contained" color="primary">{formik.isSubmitting ? <CircularProgress/>: "Submit"} </Button>
         </form>
+        <div>
+            {
+                im.map(item=>{
+                    return(
+                        <div key={item.id}>
+                            <h3>{item.title.upperCase()}</h3>
+                            <img  src={item.url} alt={item.title}/>
+                        </div>
+                    )
+                })
+            }
+        </div>
+        </>
     )
 }
 
